@@ -1,0 +1,20 @@
+# Agent / IDE
+.agents/
+.claude/
+.cursor/
+skills-lock.json
+
+# Bruno runtime / local
+*.bru.bak
+.enviroment.bru
+**/results/
+**/reports/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.log
+*.swp
+*~
+.idea/
+.vscode/

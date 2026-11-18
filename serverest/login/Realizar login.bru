@@ -1,0 +1,48 @@
+meta {
+  name: Realizar login
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/login
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "email": "{{email}}",
+    "password": "{{password}}"
+  }
+}
+
+script:pre-request {
+  // Independente: garante credenciais reutilizando a request de cadastro
+  if (!bru.getVar("email") || !bru.getVar("password")) {
+    await bru.runRequest("usuarios/Cadastrar usuario");
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.message: eq Login realizado com sucesso
+  res.body.authorization: isString
+}
+
+script:post-response {
+  bru.setVar("token", res.body.authorization);
+}
+
+docs {
+  Realiza login e obtém o token Bearer.
+  
+  Se `email`/`password` não existirem, executa `usuarios/Cadastrar usuario` via `bru.runRequest()`.
+  
+  Responsável por salvar `token` (já inclui o prefixo `Bearer `).
+}

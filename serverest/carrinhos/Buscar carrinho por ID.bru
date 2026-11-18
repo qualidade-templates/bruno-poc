@@ -1,0 +1,35 @@
+meta {
+  name: Buscar carrinho por ID
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/carrinhos/{{carrinhoId}}
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+script:pre-request {
+  if (!bru.getVar("carrinhoId")) {
+    await bru.runRequest("carrinhos/Cadastrar carrinho");
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body._id: isString
+  res.body.idUsuario: isString
+  res.body.quantidadeTotal: isNumber
+  res.body.precoTotal: isNumber
+}
+
+docs {
+  Busca o carrinho pelo `carrinhoId`.
+  
+  Se `carrinhoId` não existir, executa `carrinhos/Cadastrar carrinho` via `bru.runRequest()`.
+}

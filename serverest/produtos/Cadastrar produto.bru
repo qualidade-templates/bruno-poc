@@ -1,0 +1,61 @@
+meta {
+  name: Cadastrar produto
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/produtos
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+  Authorization: {{token}}
+}
+
+body:json {
+  {
+    "nome": "{{produtoNome}}",
+    "preco": {{produtoPreco}},
+    "descricao": "{{produtoDescricao}}",
+    "quantidade": {{produtoQuantidade}}
+  }
+}
+
+script:pre-request {
+  // Independente: garante autenticação reutilizando a request de login
+  if (!bru.getVar("token")) {
+    await bru.runRequest("login/Realizar login");
+  }
+
+  if (!bru.getVar("produtoNome")) {
+    const ts = Date.now();
+    const suffix = Math.floor(Math.random() * 10000);
+    bru.setVar("produtoNome", `Produto QA ${ts}-${suffix}`);
+    bru.setVar("produtoPreco", 50 + (suffix % 450));
+    bru.setVar("produtoDescricao", `Descricao dinamica gerada em ${ts}`);
+    bru.setVar("produtoQuantidade", 10 + (suffix % 90));
+  }
+}
+
+assert {
+  res.status: eq 201
+  res.body.message: eq Cadastro realizado com sucesso
+  res.body._id: isString
+}
+
+script:post-response {
+  bru.setVar("produtoId", res.body._id);
+}
+
+docs {
+  Cadastra um produto (requer usuário administrador autenticado).
+  
+  Se `token` não existir, executa `login/Realizar login` via `bru.runRequest()`.
+  Se os dados do produto estiverem ausentes, gera valores fake dinâmicos.
+  
+  Responsável por salvar `produtoId`.
+}

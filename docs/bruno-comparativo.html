@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Bruno x Postman x Insomnia x Python — por que considerar o Bruno</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 22mm 20mm 24mm 20mm;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      color: #1f2933;
+      line-height: 1.55;
+      font-size: 11pt;
+      margin: 0;
+      padding: 0;
+    }
+
+    h1 {
+      font-size: 20pt;
+      line-height: 1.25;
+      margin: 0 0 8px;
+      color: #111827;
+      font-weight: 700;
+    }
+
+    .subtitle {
+      color: #52606d;
+      font-size: 11pt;
+      margin-bottom: 28px;
+    }
+
+    h2 {
+      font-size: 13.5pt;
+      margin: 28px 0 10px;
+      color: #111827;
+      border-bottom: 1px solid #d9e2ec;
+      padding-bottom: 6px;
+      page-break-after: avoid;
+    }
+
+    h3 {
+      font-size: 11.5pt;
+      margin: 18px 0 6px;
+      color: #243b53;
+      page-break-after: avoid;
+    }
+
+    p { margin: 0 0 12px; }
+
+    ul {
+      margin: 0 0 14px;
+      padding-left: 18px;
+    }
+
+    li { margin-bottom: 6px; }
+
+    .meta {
+      font-size: 9.5pt;
+      color: #627d98;
+      margin-bottom: 24px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 18px;
+      font-size: 9.5pt;
+      page-break-inside: avoid;
+    }
+
+    th, td {
+      border: 1px solid #bcccdc;
+      padding: 8px 9px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f0f4f8;
+      font-weight: 600;
+      color: #243b53;
+    }
+
+    tr:nth-child(even) td { background: #f8fafc; }
+
+    .note {
+      background: #f5f7fa;
+      border-left: 3px solid #829ab1;
+      padding: 10px 12px;
+      margin: 14px 0 18px;
+      font-size: 10.5pt;
+    }
+
+    .footer {
+      margin-top: 36px;
+      padding-top: 12px;
+      border-top: 1px solid #d9e2ec;
+      font-size: 9pt;
+      color: #829ab1;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Bruno, Postman, Insomnia e Python: uma comparação prática</h1>
+  <p class="subtitle">Por que o Bruno faz sentido no dia a dia de testes de API</p>
+  <p class="meta">Documento interno · referência rápida para o time · baseado no uso com ServeRest e collections versionadas em Git</p>
+
+  <h2>1. O problema que a gente está tentando resolver</h2>
+  <p>
+    Testar API não é só “mandar um POST e ver se voltou 200”. Em algum momento o time precisa
+    cadastrar usuário, fazer login, pegar token, criar recurso, validar resposta e ainda
+    conseguir repetir isso amanhã — no notebook do colega, no CI, ou numa review de PR.
+  </p>
+  <p>
+    Aí entram as ferramentas. Postman e Insomnia são conhecidos. Python “puro” também resolve.
+    O Bruno entra nessa conversa com uma proposta diferente: collection como código, no Git,
+    sem depender de conta na nuvem para o fluxo básico do time.
+  </p>
+
+  <h2>2. Visão rápida das quatro opções</h2>
+
+  <h3>Postman</h3>
+  <p>
+    É o mais popular. Interface madura, muitos tutoriais, monitores, mock server, workspaces
+    em nuvem. Funciona bem para exploração e para times que já vivem no ecossistema Postman.
+    O ponto sensível costuma ser o modelo de colaboração: muita coisa boa puxa para conta,
+    plano e sync na cloud. Collections exportadas em JSON grandes também ficam chatas de
+    revisar em pull request.
+  </p>
+
+  <h3>Insomnia</h3>
+  <p>
+    Mais leve que o Postman na sensação de uso. Bom para quem quer um cliente HTTP limpo,
+    com menos “plataforma” em volta. Nos últimos anos o produto mudou de rumo algumas vezes
+    (licença, sync, foco comercial), e isso deixou parte da comunidade insegura sobre o
+    caminho de longo prazo. Continua útil — só vale olhar com calma o que o time realmente
+    precisa de sync e colaboração.
+  </p>
+
+  <h3>Python nativo (requests, httpx, pytest…)</h3>
+  <p>
+    Máximo de controle. Dá para montar suite séria, integrar com qualquer CI e tratar teste
+    de API como código de verdade. O custo é outro: alguém precisa escrever e manter
+    framework, fixtures, helpers de auth, reports, organização de casos. Para um time misto
+    (QA + dev), a barreira sobe. Nem todo mundo quer abrir um repo de testes só para
+    validar um endpoint novo.
+  </p>
+
+  <h3>Bruno</h3>
+  <p>
+    Cliente de API open source que guarda a collection em arquivos no disco (formato `.bru`
+    ou YAML). A ideia central é simples: a collection mora no Git junto com o projeto.
+    Diff fica legível, review fica natural, e o time não precisa “subir collection para a
+    cloud” só para compartilhar. Tem CLI para rodar no terminal/CI, assertions, scripts e
+    request chaining — o suficiente para um fluxo E2E de API sem virar um framework
+    particular.
+  </p>
+
+  <h2>3. Comparativo lado a lado</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Critério</th>
+        <th>Bruno</th>
+        <th>Postman</th>
+        <th>Insomnia</th>
+        <th>Python nativo</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Onde mora a collection</td>
+        <td>Arquivos locais / Git</td>
+        <td>Workspace cloud ou export JSON</td>
+        <td>Local + sync (conforme plano/setup)</td>
+        <td>Código no repo</td>
+      </tr>
+      <tr>
+        <td>Review em PR</td>
+        <td>Boa — arquivos pequenos e legíveis</td>
+        <td>Ruim/média — JSON exportado é barulhento</td>
+        <td>Média</td>
+        <td>Excelente — é código</td>
+      </tr>
+      <tr>
+        <td>Curva para QA explorar API</td>
+        <td>Baixa</td>
+        <td>Baixa</td>
+        <td>Baixa</td>
+        <td>Mais alta</td>
+      </tr>
+      <tr>
+        <td>Rodar no CI</td>
+        <td>CLI nativa (`bru run`)</td>
+        <td>Newman / CLI (com setup)</td>
+        <td>Possível, menos “padrão ouro”</td>
+        <td>Natural (pytest etc.)</td>
+      </tr>
+      <tr>
+        <td>Custo / modelo</td>
+        <td>Open source no fluxo local/Git</td>
+        <td>Free limitado + planos pagos</td>
+        <td>Free + recursos pagos</td>
+        <td>Só o custo de manter o código</td>
+      </tr>
+      <tr>
+        <td>Controle fino / libs custom</td>
+        <td>Scripts no próprio Bruno</td>
+        <td>Scripts + ecossistema amplo</td>
+        <td>Scripts / plugins</td>
+        <td>Total</td>
+      </tr>
+      <tr>
+        <td>Dependência de conta</td>
+        <td>Não precisa para o básico</td>
+        <td>Forte no fluxo colaborativo</td>
+        <td>Depende do modo de sync</td>
+        <td>Nenhuma</td>
+      </tr>
+      <tr>
+        <td>Documentação da API</td>
+        <td>Docs na collection + HTML gerado</td>
+        <td>Forte (incluindo publicação)</td>
+        <td>Mais simples</td>
+        <td>Você monta (Sphinx, etc.)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    Nenhuma ferramenta “vence” em tudo. Postman ainda é ótimo para demo e onboarding rápido.
+    Python ainda é o caminho quando o teste vira produto interno de qualidade.
+    O Bruno brilha no meio-termo: visual o bastante para o dia a dia, versionado o bastante para o Git.
+  </div>
+
+  <h2>4. Onde o Bruno ganha na prática</h2>
+
+  <h3>Collection no Git, de verdade</h3>
+  <p>
+    Em vez de exportar/importar JSON de tempos em tempos, a collection já é o artefato.
+    Mudou um header? Aparece no diff. Alguém quebrou um assert? Dá para comentar no PR.
+    Isso reduz aquele clássico “funciona na minha collection local”.
+  </p>
+
+  <h3>Menos atrito de colaboração</h3>
+  <p>
+    Não é obrigatório criar workspace cloud só para o time compartilhar requests. Clone do
+    repo, abre no Bruno, seleciona o environment, roda. Para muitos times isso já resolve
+    80% do problema de colaboração.
+  </p>
+
+  <h3>Reuso sem virar gambiarra</h3>
+  <p>
+    Com request chaining (`bru.runRequest`), uma request de login continua sendo a dona do
+    `token`. O E2E só orquestra. Isso evita copiar e colar script de autenticação em cinco
+    lugares — algo que no Postman também dá para fazer, mas no Bruno encaixa naturalmente
+    com a ideia de requests como arquivos reutilizáveis.
+  </p>
+
+  <h3>CI sem drama</h3>
+  <p>
+    `bru run` + report HTML/JUnit cobre o caminho feliz de pipeline. Não precisa reinventar
+    runner. Também não precisa manter uma suíte Python só para validar o fluxo básico da API
+    se o time ainda não está nesse nível de maturidade.
+  </p>
+
+  <h3>Docs junto da collection</h3>
+  <p>
+    Dá para documentar request por request e gerar HTML para quem não usa o Bruno no dia a
+    dia. Não substitui um portal de API enterprise, mas para time interno já ajuda bastante.
+  </p>
+
+  <h2>5. Onde o Bruno não é a melhor escolha</h2>
+  <ul>
+    <li>Se o time já está 100% no Postman Enterprise e aproveita monitor, mock e governança da plataforma, migrar “porque sim” não vale a pena.</li>
+    <li>Se o teste precisa de lógica pesada, paralelismo sofisticado, factories complexas e integração profunda com o domínio, Python (ou outra linguagem) ainda é mais sólido.</li>
+    <li>Se a prioridade é só explorar um endpoint uma vez, qualquer cliente HTTP resolve — Bruno incluso, sem mistério.</li>
+  </ul>
+
+  <h2>6. E o Python nativo, então?</h2>
+  <p>
+    Python continua sendo excelente. A diferença é de papel:
+  </p>
+  <ul>
+    <li><strong>Bruno</strong> — acelerar validação de contrato/fluxo, manter requests vivas no repo, facilitar QA e review.</li>
+    <li><strong>Python</strong> — quando o teste vira suíte de regressão “de engenharia”, com abstrações próprias, dados controlados e regras de negócio profundas.</li>
+  </ul>
+  <p>
+    Na prática, muita gente usa os dois: Bruno para desenhar e compartilhar o fluxo; Python
+    para o que precisa de músculo de código. Não precisa ser guerra santa.
+  </p>
+
+  <h2>7. Recomendação objetiva</h2>
+  <p>
+    Para o cenário atual (API ServeRest / collections versionadas / fluxo E2E com login,
+    produto e carrinho), o Bruno é a escolha mais equilibrada:
+  </p>
+  <ul>
+    <li>fácil de abrir e rodar;</li>
+    <li>fácil de revisar no Git;</li>
+    <li>capaz de ir para o CI;</li>
+    <li>sem amarrar o time a cloud só para compartilhar request.</li>
+  </ul>
+  <p>
+    Postman continua sendo referência de mercado e ótimo se o time já vive nele.
+    Insomnia segue como alternativa leve.
+    Python entra com força quando a complexidade do teste passar do que um client de API
+    consegue expressar com clareza.
+  </p>
+
+  <div class="footer">
+    Documento gerado para apoiar a decisão de tooling de testes de API no POC Bruno.
+    Comparação qualitativa com base em uso prático — não é benchmark oficial dos vendors.
+  </div>
+
+</body>
+</html>

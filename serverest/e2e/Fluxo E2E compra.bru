@@ -1,0 +1,60 @@
+meta {
+  name: Fluxo E2E compra
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/carrinhos/{{carrinhoId}}
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+script:pre-request {
+  // Apenas orquestra: cada request cuida das próprias vars (token, ids, dados fake)
+  await bru.runRequest("usuarios/Cadastrar usuario");
+  await bru.runRequest("login/Realizar login");
+  await bru.runRequest("produtos/Cadastrar produto");
+  await bru.runRequest("carrinhos/Cadastrar carrinho");
+}
+
+assert {
+  res.status: eq 200
+  res.body._id: isString
+  res.body.idUsuario: isString
+  res.body.quantidadeTotal: eq 1
+  res.body.precoTotal: isNumber
+}
+
+tests {
+  test("carrinho deve pertencer ao usuario criado no fluxo", function () {
+    expect(res.body.idUsuario).to.equal(bru.getVar("userId"));
+  });
+
+  test("carrinho deve conter o produto criado no fluxo", function () {
+    expect(res.body.produtos).to.be.an("array").that.is.not.empty;
+    expect(res.body.produtos[0].idProduto).to.equal(bru.getVar("produtoId"));
+    expect(res.body.produtos[0].quantidade).to.equal(Number(bru.getVar("quantidadeCarrinho")));
+  });
+
+  test("preco total deve refletir preco unitario do produto", function () {
+    const preco = Number(bru.getVar("produtoPreco"));
+    const qtd = Number(bru.getVar("quantidadeCarrinho"));
+    expect(res.body.precoTotal).to.equal(preco * qtd);
+  });
+}
+
+docs {
+  # Fluxo E2E — cadastro → login → produto → carrinho
+  
+  Só orquestra as requests reutilizáveis via `bru.runRequest()`.
+  
+  Cada request é responsável por:
+  - gerar seus dados fake (quando necessário)
+  - encadear dependências ausentes
+  - salvar suas próprias variáveis (`userId`, `token`, `produtoId`, `carrinhoId`)
+}
