@@ -70,5 +70,7 @@ npx @usebruno/cli docs generate --all-envs --no-git-link \
 
 ## Repositórios relacionados
 
+- [postman-poc](https://github.com/qualidade-templates/postman-poc) — mesmos fluxos no Postman
+
 - [insomnia-poc](https://github.com/qualidade-templates/insomnia-poc) — mesmos fluxos no Insomnia
 - [pactum-js-poc](https://github.com/qualidade-templates/pactum-js-poc) — mesmos fluxos em PactumJS + TypeScript
